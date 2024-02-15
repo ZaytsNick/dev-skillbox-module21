@@ -1,13 +1,14 @@
 #include <iostream>
 #include <string>
+#include <ctime>
 #include <random>
 #include <stdlib.h>
 struct person
 {
     std::string name;
     int position[2] = {rand() % 20, rand() % 20};
-    int life =  rand() % 151 + 50;
-    int armor =  rand() % 51;
+    int life = rand() % 151 + 50;
+    int armor = rand() % 51;
     int damage = rand() % 31 + 15;
 };
 void creation_evil(char battlefield[][20], std::vector<person> &persons)
@@ -60,8 +61,7 @@ bool fight(person person_1, person &person_2)
         person_2.armor = 0;
         if (person_2.life - person_1.damage <= 0)
         {
-            system("cls");
-            std::cout << "Evil in the person of "<<person_2.name <<" is defeated" << std::endl;
+            std::cout << "Evil in the person of " << person_2.name << " is defeated" << std::endl;
             return true;
         }
         else
@@ -73,26 +73,26 @@ bool fight(person person_1, person &person_2)
     }
     return false;
 }
-void is_there_anyone_here(int x, int y, std::vector<person> &persons)
+void is_there_anyone_here(int *id, int x, int y, std::vector<person> &persons)
 {
+    // system("cls");
     for (int i = 1; i < 6; ++i)
     {
         if (persons[i].position[0] == x && persons[i].position[1] == y)
         {
-            if (fight(persons[0], persons[i]))
+            if (*id==0 && fight(persons[*id], persons[i]))
             {
                 persons.erase(persons.begin() + i);
-                persons[0].position[0] = x;
-                persons[0].position[1] = y;
+                persons[*id].position[0] = x;
+                persons[*id].position[1] = y;
                 return;
             }
             else
                 return;
-            
         }
     }
-    persons[0].position[0] = x;
-    persons[0].position[1] = y;
+    persons[*id].position[0] = x;
+    persons[*id].position[1] = y;
 }
 
 void move(std::vector<person> &persons)
@@ -100,30 +100,58 @@ void move(std::vector<person> &persons)
     char move;
     while (move != '0')
     {
-        std::cout << "W/A/S/D? ";
-        std::cin >> move;
-        switch (move)
+        for (int i = 0; i < 6; ++i)
         {
-        case 'W':
-            is_there_anyone_here(((persons[0].position[0]) - 1), (persons[0].position[1]), persons);
-            break;
-        case 'A':
-            is_there_anyone_here((persons[0].position[0]), ((persons[0].position[1]) - 1), persons);
-            break;
-        case 'S':
-            is_there_anyone_here(((persons[0].position[0]) + 1), (persons[0].position[1]), persons);
-            break;
-        case 'D':
-            is_there_anyone_here((persons[0].position[0]), ((persons[0].position[1]) + 1), persons);
-            break;
-        default:
-            break;
+            if (i == 0)
+            {
+                std::cout << "W/A/S/D? ";
+                std::cin >> move;
+            }
+            else
+            {
+                switch (rand() % 4)
+                {
+                case 0:
+                    move = 'W';
+                    break;
+                case 1:
+                    move = 'A';
+                    break;
+                case 2:
+                    move = 'S';
+                    break;
+                case 3:
+                    move = 'D';
+                    break;
+                };
+            }
+            switch (move)
+            {
+            case 'W':
+                if (((persons[i].position[0]) - 1) < 20 && ((persons[i].position[0]) - 1) >= 0)
+                    is_there_anyone_here(&i, ((persons[i].position[0]) - 1), (persons[i].position[1]), persons);
+                break;
+            case 'A':
+                if (((persons[i].position[1]) - 1) < 20 && ((persons[i].position[1]) - 1) >= 0)
+                    is_there_anyone_here(&i, (persons[i].position[0]), ((persons[i].position[1]) - 1), persons);
+                break;
+            case 'S':
+                if (((persons[i].position[0]) + 1) < 20 && ((persons[i].position[0]) + 1) >= 0)
+                    is_there_anyone_here(&i, ((persons[i].position[0]) + 1), (persons[i].position[1]), persons);
+                break;
+            case 'D':
+                if (((persons[i].position[1]) - 1) < 20 && ((persons[i].position[1]) - 1) >= 0)
+                    is_there_anyone_here(&i, (persons[i].position[0]), ((persons[i].position[1]) + 1), persons);
+                break;
+            }
         }
-        viewer_battlefield(persons); 
+        // move_evil(persons);
+        viewer_battlefield(persons);
     }
 }
 int main()
 {
+    std::srand(std::time(nullptr));
     char battlefield[20][20];
     for (int i = 0; i < 20; ++i)
     {
